@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Replik! – kortslumpare</title>
+  <style>
+    :root {
+      --bg: #f3efe7;
+      --card: #fffaf0;
+      --ink: #1e1e1e;
+      --muted: #6b6256;
+      --accent: #183a37;
+      --accent-2: #d48c30;
+      --danger: #7d1d1d;
+      --shadow: 0 20px 45px rgba(0,0,0,.14);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #fff8e7 0, var(--bg) 55%, #e5dccb 100%);
+      color: var(--ink);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    main {
+      width: min(760px, 100%);
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 22px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 7vw, 4rem);
+      letter-spacing: -.05em;
+      color: var(--accent);
+    }
+
+    .subtitle {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .status {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin: 0 auto 16px;
+      color: var(--muted);
+      font-weight: 650;
+      max-width: 560px;
+    }
+
+    .card {
+      position: relative;
+      background: var(--card);
+      border: 3px solid var(--accent);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      padding: clamp(24px, 6vw, 48px);
+      min-height: 430px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .card::before,
+    .card::after {
+      content: "🦆";
+      position: absolute;
+      font-size: 3.4rem;
+      opacity: .12;
+    }
+
+    .card::before { top: 18px; left: 22px; }
+    .card::after { right: 22px; bottom: 18px; transform: rotate(180deg); }
+
+    .label {
+      text-transform: uppercase;
+      letter-spacing: .16em;
+      color: var(--accent-2);
+      font-size: .78rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    h2 {
+      font-size: clamp(2.2rem, 9vw, 4.8rem);
+      line-height: .95;
+      margin: 0 0 24px;
+      color: var(--accent);
+      letter-spacing: -.05em;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 1.4em;
+      font-size: clamp(1.15rem, 3.2vw, 1.55rem);
+      line-height: 1.55;
+    }
+
+    li::marker { color: var(--accent-2); }
+
+    .empty h2 { color: var(--danger); }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 22px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 14px 22px;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 8px 18px rgba(0,0,0,.14);
+    }
+
+    button.secondary {
+      background: transparent;
+      color: var(--accent);
+      border: 2px solid var(--accent);
+      box-shadow: none;
+    }
+
+    button:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+    }
+
+    .history {
+      margin-top: 18px;
+      background: rgba(255,255,255,.55);
+      border-radius: 18px;
+      padding: 14px 18px;
+      color: var(--muted);
+      font-size: .95rem;
+    }
+
+    .history strong { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Replik!</h1>
+      <p class="subtitle">Slumpa ett nytt ämneskort tills leken är slut.</p>
+    </header>
+
+    <section class="status" aria-live="polite">
+      <span id="drawn">Dragna: 0</span>
+      <span id="remaining">Kvar: 25</span>
+    </section>
+
+    <article id="card" class="card">
+      <div class="label">Ämneskort</div>
+      <h2>Redo?</h2>
+      <ul>
+        <li>Klicka på "Dra kort" för att börja.</li>
+        <li>Varje kort kan bara dras en gång.</li>
+        <li>När alla kort är använda är spelet slut.</li>
+      </ul>
+    </article>
+
+    <div class="controls">
+      <button id="drawButton">Dra kort</button>
+      <button id="resetButton" class="secondary">Blanda om</button>
+    </div>
+
+    <aside class="history" id="history">
+      <strong>Dragna kort:</strong> inga ännu.
+    </aside>
+  </main>
+
+  <script>
+    const originalCards = [
+      { title: "Kärnkraft", goals: ["Energiförsörjning", "Klimatpåverkan", "Elpriser", "Nationellt oberoende"] },
+      { title: "Skolan", goals: ["Kunskapsnivå", "Likvärdighet", "Resurser", "Framtida arbetsmarknad"] },
+      { title: "Sjukvården", goals: ["Tillgänglighet", "Kostnader", "Personal", "Livskvalitet"] },
+      { title: "Migration", goals: ["Integration", "Arbetsmarknad", "Kultur", "Samhällskostnader"] },
+      { title: "Polisen", goals: ["Trygghet", "Resurser", "Förebyggande arbete", "Förtroende"] },
+      { title: "Klimatförändringar", goals: ["Utsläpp", "Internationellt samarbete", "Teknikutveckling", "Livsstil"] },
+      { title: "Sociala medier", goals: ["Yttrandefrihet", "Desinformation", "Gemenskap", "Psykisk hälsa"] },
+      { title: "Fotboll", goals: ["Lagarbete", "Talangutveckling", "Ekonomi", "Underhållning"] },
+      { title: "Kollektivtrafik", goals: ["Tillgänglighet", "Miljö", "Kostnad", "Punktlighet"] },
+      { title: "Turism", goals: ["Lokala jobb", "Kulturutbyte", "Miljöpåverkan", "Infrastruktur"] },
+      { title: "Husdjur", goals: ["Ansvar", "Sällskap", "Kostnader", "Hälsa"] },
+      { title: "Bostäder", goals: ["Tillgång", "Priser", "Stadsutveckling", "Segregation"] },
+      { title: "Matpriser", goals: ["Inflation", "Produktion", "Konkurrens", "Konsumenter"] },
+      { title: "AI och automatisering", goals: ["Produktivitet", "Arbetsmarknad", "Innovation", "Etik"] },
+      { title: "Semesterresor", goals: ["Avkoppling", "Ekonomi", "Klimatpåverkan", "Upplevelser"] },
+      { title: "Bibliotek", goals: ["Kunskap", "Tillgänglighet", "Kultur", "Mötesplats"] },
+      { title: "Hundägande", goals: ["Motion", "Ansvar", "Gemenskap", "Kostnader"] },
+      { title: "Entreprenörskap", goals: ["Innovation", "Risk", "Tillväxt", "Finansiering"] },
+      { title: "Informationssäkerhet", goals: ["Integritet", "Tillgänglighet", "Förtroende", "Ansvar"] },
+      { title: "Beredskap", goals: ["Krisplanering", "Resurser", "Samarbete", "Självförsörjning"] },
+      { title: "Matindustri", goals: ["Produktion", "Kvalitet", "Handel", "Hållbarhet"] },
+      { title: "Föreningsliv", goals: ["Gemenskap", "Demokrati", "Ideellt arbete", "Lokalt engagemang"] },
+      { title: "Marskolonisation", goals: ["Teknik", "Överlevnad", "Resurser", "Samarbete"] },
+      { title: "Elbilar", goals: ["Infrastruktur", "Klimat", "Kostnader", "Råvaror"] },
+      { title: "Kulturpolitik", goals: ["Yttrandefrihet", "Finansiering", "Identitet", "Tillgänglighet"] }
+    ];
+
+    let deck = [];
+    let drawnCards = [];
+
+    const cardElement = document.getElementById("card");
+    const drawnElement = document.getElementById("drawn");
+    const remainingElement = document.getElementById("remaining");
+    const historyElement = document.getElementById("history");
+    const drawButton = document.getElementById("drawButton");
+    const resetButton = document.getElementById("resetButton");
+
+    function resetDeck() {
+      deck = [...originalCards];
+      drawnCards = [];
+      drawButton.disabled = false;
+      drawButton.textContent = "Dra kort";
+      cardElement.classList.remove("empty");
+      cardElement.innerHTML = `
+        <div class="label">Ämneskort</div>
+        <h2>Redo?</h2>
+        <ul>
+          <li>Klicka på "Dra kort" för att börja.</li>
+          <li>Varje kort kan bara dras en gång.</li>
+          <li>När alla kort är använda är spelet slut.</li>
+        </ul>`;
+      updateStatus();
+    }
+
+    function drawCard() {
+      if (deck.length === 0) {
+        endGame();
+        return;
+      }
+
+      const index = Math.floor(Math.random() * deck.length);
+      const [card] = deck.splice(index, 1);
+      drawnCards.push(card);
+      renderCard(card);
+      updateStatus();
+
+      if (deck.length === 0) {
+        drawButton.textContent = "Leken är slut";
+        drawButton.disabled = true;
+      }
+    }
+
+    function renderCard(card) {
+      cardElement.classList.remove("empty");
+      cardElement.innerHTML = `
+        <div class="label">Ämneskort ${drawnCards.length} av ${originalCards.length}</div>
+        <h2>${escapeHtml(card.title)}</h2>
+        <ul>${card.goals.map(goal => `<li>${escapeHtml(goal)}</li>`).join("")}</ul>`;
+    }
+
+    function endGame() {
+      cardElement.classList.add("empty");
+      cardElement.innerHTML = `
+        <div class="label">Spelet är slut</div>
+        <h2>Alla kort är använda</h2>
+        <ul>
+          <li>Blanda om för att starta en ny testomgång.</li>
+          <li>Räkna poäng, ankor och eventuella guldankor.</li>
+        </ul>`;
+    }
+
+    function updateStatus() {
+      drawnElement.textContent = `Dragna: ${drawnCards.length}`;
+      remainingElement.textContent = `Kvar: ${deck.length}`;
+      historyElement.innerHTML = `<strong>Dragna kort:</strong> ${drawnCards.length ? drawnCards.map(card => escapeHtml(card.title)).join(", ") : "inga ännu."}`;
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    drawButton.addEventListener("click", drawCard);
+    resetButton.addEventListener("click", resetDeck);
+
+    resetDeck();
+  </script>
+</body>
+</html>
