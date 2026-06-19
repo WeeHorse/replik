@@ -157,6 +157,108 @@
     }
 
     .history strong { color: var(--accent); }
+
+
+    .top-actions {
+      display: flex;
+      justify-content: center;
+      margin-top: 14px;
+    }
+
+    dialog {
+      width: min(760px, calc(100% - 32px));
+      max-height: min(86vh, 860px);
+      border: 3px solid var(--accent);
+      border-radius: 24px;
+      padding: 0;
+      background: var(--card);
+      color: var(--ink);
+      box-shadow: var(--shadow);
+    }
+
+    dialog::backdrop {
+      background: rgba(20, 25, 24, .55);
+      backdrop-filter: blur(2px);
+    }
+
+    .modal-header {
+      position: sticky;
+      top: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 22px;
+      background: var(--accent);
+      color: white;
+      z-index: 1;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      color: white;
+      font-size: 1.45rem;
+      letter-spacing: -.03em;
+    }
+
+    .icon-button {
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      box-shadow: none;
+      background: rgba(255,255,255,.16);
+      font-size: 1.5rem;
+      line-height: 1;
+    }
+
+    .modal-content {
+      padding: 22px;
+      overflow: auto;
+    }
+
+    .modal-content h3 {
+      margin: 22px 0 8px;
+      color: var(--accent);
+      font-size: 1.25rem;
+    }
+
+    .modal-content h3:first-child { margin-top: 0; }
+
+    .modal-content p {
+      margin: 0 0 10px;
+      line-height: 1.55;
+      color: var(--muted);
+    }
+
+    .modal-content ul,
+    .modal-content ol {
+      margin: 8px 0 12px;
+      padding-left: 1.4em;
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+
+    .rules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin: 12px 0;
+    }
+
+    .rule-box {
+      border: 2px solid rgba(24,58,55,.18);
+      border-radius: 16px;
+      padding: 12px 14px;
+      background: rgba(255,255,255,.45);
+    }
+
+    .rule-box strong {
+      display: block;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
   </style>
 </head>
 <body>
@@ -164,6 +266,9 @@
     <header>
       <h1>Replik!</h1>
       <p class="subtitle">Slumpa ett nytt ämneskort tills leken är slut.</p>
+      <div class="top-actions">
+        <button id="rulesButton" class="secondary" type="button">Regler & instruktioner</button>
+      </div>
     </header>
 
     <section class="status" aria-live="polite">
@@ -175,7 +280,7 @@
       <div class="label">Ämneskort</div>
       <h2>Redo?</h2>
       <ul>
-        <li>Klicka på "Dra kort" för att börja.</li>
+        <li>Klicka på “Dra kort” för att börja.</li>
         <li>Varje kort kan bara dras en gång.</li>
         <li>När alla kort är använda är spelet slut.</li>
       </ul>
@@ -189,6 +294,56 @@
     <aside class="history" id="history">
       <strong>Dragna kort:</strong> inga ännu.
     </aside>
+
+    <dialog id="rulesDialog" aria-labelledby="rulesTitle">
+      <div class="modal-header">
+        <h2 id="rulesTitle">Regler & instruktioner</h2>
+        <button id="closeRulesButton" class="icon-button" type="button" aria-label="Stäng regler">×</button>
+      </div>
+      <div class="modal-content">
+        <h3>Om spelet</h3>
+        <p><strong>Replik!</strong> är ett debattspel där spelarna håller korta tal, lyssnar efter delmål och försöker svara genom att byta till ett nytt ämne utan att helt ducka frågan.</p>
+
+        <h3>Målet</h3>
+        <p>Samla flest poäng genom att få med delmål, göra bra repliker och undvika ankpoäng.</p>
+
+        <h3>Spelomgång</h3>
+        <ol>
+          <li><strong>Dra kort:</strong> Den aktiva spelaren drar ett ämneskort.</li>
+          <li><strong>Tal:</strong> Spelaren håller ett tal på upp till 60 sekunder och försöker få med kortets delmål.</li>
+          <li><strong>Identifiering:</strong> Övriga spelare noterar vilka delmål de hörde. Gruppen avgör vilka delmål som faktiskt togs upp.</li>
+          <li><strong>Replik:</strong> Nästa spelare drar ett nytt kort. Repliken ska handla om det nya ämnet, men samtidigt referera till delmålen från föregående tal.</li>
+          <li><strong>Bedömning:</strong> Gruppen delar ut replikpoäng, eventuell brobyggarbonus och eventuella ankpoäng.</li>
+        </ol>
+
+        <h3>Poäng</h3>
+        <div class="rules-grid">
+          <div class="rule-box">
+            <strong>Talarpoäng</strong>
+            1 poäng per delmål som gruppen identifierar i talet.
+          </div>
+          <div class="rule-box">
+            <strong>Replikpoäng</strong>
+            1 poäng per tidigare delmål som repliken lyckas referera till på ett rimligt sätt.
+          </div>
+          <div class="rule-box">
+            <strong>Brobyggarbonus</strong>
+            +2 poäng om majoriteten tycker att repliken bygger en trovärdig bro mellan ämnena.
+          </div>
+          <div class="rule-box">
+            <strong>Ankpoäng</strong>
+            0 ankor = svarade, 1 anka = delvis, 2 ankor = duckade frågan. Varje anka ger −1 poäng vid spelets slut.
+          </div>
+        </div>
+
+        <h3>Guldanka, valfri regel</h3>
+        <p>En spelare får en guldanka om repliken refererar till alla tidigare delmål, får brobyggarbonus och inte får några ankpoäng. Varje guldanka är värd +3 poäng vid spelets slut.</p>
+
+        <h3>Spelets slut</h3>
+        <p>När alla kort är dragna är spelet slut. Räkna ihop poäng, dra av ankpoäng och lägg till eventuella guldankor.</p>
+      </div>
+    </dialog>
+
   </main>
 
   <script>
@@ -229,6 +384,9 @@
     const historyElement = document.getElementById("history");
     const drawButton = document.getElementById("drawButton");
     const resetButton = document.getElementById("resetButton");
+    const rulesButton = document.getElementById("rulesButton");
+    const closeRulesButton = document.getElementById("closeRulesButton");
+    const rulesDialog = document.getElementById("rulesDialog");
 
     function resetDeck() {
       deck = [...originalCards];
@@ -240,7 +398,7 @@
         <div class="label">Ämneskort</div>
         <h2>Redo?</h2>
         <ul>
-          <li>Klicka på "Dra kort" för att börja.</li>
+          <li>Klicka på “Dra kort” för att börja.</li>
           <li>Varje kort kan bara dras en gång.</li>
           <li>När alla kort är använda är spelet slut.</li>
         </ul>`;
@@ -301,6 +459,12 @@
 
     drawButton.addEventListener("click", drawCard);
     resetButton.addEventListener("click", resetDeck);
+
+    rulesButton.addEventListener("click", () => rulesDialog.showModal());
+    closeRulesButton.addEventListener("click", () => rulesDialog.close());
+    rulesDialog.addEventListener("click", (event) => {
+      if (event.target === rulesDialog) rulesDialog.close();
+    });
 
     resetDeck();
   </script>
