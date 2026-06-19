@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Replik! – Politisk Bingo</title>
+  <title>Replik! – kortslumpare</title>
   <style>
     :root {
       --bg: #f3efe7;
@@ -161,12 +161,14 @@
 
     .top-actions {
       display: flex;
+      flex-wrap: wrap;
       justify-content: center;
-      margin-top: 14px;
+      gap: 10px;
+      margin: 14px 0 18px;
     }
 
     dialog {
-      width: min(760px, calc(100% - 32px));
+      width: min(820px, calc(100% - 32px));
       max-height: min(86vh, 860px);
       border: 3px solid var(--accent);
       border-radius: 24px;
@@ -219,45 +221,47 @@
     }
 
     .modal-content h3 {
-      margin: 22px 0 8px;
+      margin: 1.1em 0 .35em;
       color: var(--accent);
       font-size: 1.25rem;
     }
 
-    .modal-content h3:first-child { margin-top: 0; }
-
     .modal-content p {
-      margin: 0 0 10px;
-      line-height: 1.55;
       color: var(--muted);
+      line-height: 1.55;
     }
 
     .modal-content ul,
     .modal-content ol {
-      margin: 8px 0 12px;
-      padding-left: 1.4em;
       font-size: 1rem;
-      line-height: 1.5;
+      line-height: 1.55;
+      margin-bottom: 1rem;
     }
 
-    .rules-grid {
+    .ideology-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
       gap: 12px;
-      margin: 12px 0;
+      margin-top: 14px;
     }
 
-    .rule-box {
-      border: 2px solid rgba(24,58,55,.18);
+    .ideology {
+      border: 2px solid rgba(24, 58, 55, .18);
       border-radius: 16px;
-      padding: 12px 14px;
-      background: rgba(255,255,255,.45);
+      padding: 14px 16px;
+      background: rgba(255,255,255,.48);
     }
 
-    .rule-box strong {
+    .ideology strong {
       display: block;
       color: var(--accent);
-      margin-bottom: 4px;
+      margin-bottom: 5px;
+    }
+
+    .ideology span {
+      display: block;
+      color: var(--muted);
+      line-height: 1.45;
     }
   </style>
 </head>
@@ -265,15 +269,17 @@
   <main>
     <header>
       <h1>Replik!</h1>
-      <p class="subtitle">Slumpa ett nytt ämneskort tills leken är slut.</p>
-      <div class="top-actions">
-        <button id="rulesButton" class="secondary" type="button">Regler & instruktioner</button>
-      </div>
+      <p class="subtitle">40 ämneskort i banken. 20 slumpas fram per omgång.</p>
     </header>
+
+    <div class="top-actions">
+      <button id="rulesButton" class="secondary">Regler</button>
+      <button id="ideologyButton" class="secondary">Ideologier</button>
+    </div>
 
     <section class="status" aria-live="polite">
       <span id="drawn">Dragna: 0</span>
-      <span id="remaining">Kvar: 25</span>
+      <span id="remaining">Kvar i omgång: 20</span>
     </section>
 
     <article id="card" class="card">
@@ -282,7 +288,7 @@
       <ul>
         <li>Klicka på “Dra kort” för att börja.</li>
         <li>Varje kort kan bara dras en gång.</li>
-        <li>När alla kort är använda är spelet slut.</li>
+        <li>Varje omgång använder 20 slumpade kort ur en kortbank med 40 kort.</li>
       </ul>
     </article>
 
@@ -294,88 +300,135 @@
     <aside class="history" id="history">
       <strong>Dragna kort:</strong> inga ännu.
     </aside>
-
-    <dialog id="rulesDialog" aria-labelledby="rulesTitle">
-      <div class="modal-header">
-        <h2 id="rulesTitle">Regler & instruktioner</h2>
-        <button id="closeRulesButton" class="icon-button" type="button" aria-label="Stäng regler">×</button>
-      </div>
-      <div class="modal-content">
-        <h3>Om spelet</h3>
-        <p><strong>Replik!</strong> är ett debattspel där spelarna håller korta tal, lyssnar efter delmål och försöker svara genom att byta till ett nytt ämne utan att helt ducka frågan.</p>
-
-        <h3>Målet</h3>
-        <p>Samla flest poäng genom att få med delmål, göra bra repliker och undvika ankpoäng.</p>
-
-        <h3>Spelomgång</h3>
-        <ol>
-          <li><strong>Dra kort:</strong> Den aktiva spelaren drar ett ämneskort.</li>
-          <li><strong>Tal:</strong> Spelaren håller ett tal på upp till 60 sekunder och försöker få med kortets delmål.</li>
-          <li><strong>Identifiering:</strong> Övriga spelare noterar vilka delmål de hörde. Gruppen avgör vilka delmål som faktiskt togs upp.</li>
-          <li><strong>Replik:</strong> Nästa spelare drar ett nytt kort. Repliken ska handla om det nya ämnet, men samtidigt referera till delmålen från föregående tal.</li>
-          <li><strong>Bedömning:</strong> Gruppen delar ut replikpoäng, eventuell brobyggarbonus och eventuella ankpoäng.</li>
-        </ol>
-
-        <h3>Poäng</h3>
-        <div class="rules-grid">
-          <div class="rule-box">
-            <strong>Talarpoäng</strong>
-            1 poäng per delmål som gruppen identifierar i talet.
-          </div>
-          <div class="rule-box">
-            <strong>Replikpoäng</strong>
-            1 poäng per tidigare delmål som repliken lyckas referera till på ett rimligt sätt.
-          </div>
-          <div class="rule-box">
-            <strong>Brobyggarbonus</strong>
-            +2 poäng om majoriteten tycker att repliken bygger en trovärdig bro mellan ämnena.
-          </div>
-          <div class="rule-box">
-            <strong>Ankpoäng</strong>
-            0 ankor = svarade, 1 anka = delvis, 2 ankor = duckade frågan. Varje anka ger −1 poäng vid spelets slut.
-          </div>
-        </div>
-
-        <h3>Guldanka, valfri regel</h3>
-        <p>En spelare får en guldanka om repliken refererar till alla tidigare delmål, får brobyggarbonus och inte får några ankpoäng. Varje guldanka är värd +3 poäng vid spelets slut.</p>
-
-        <h3>Spelets slut</h3>
-        <p>När alla kort är dragna är spelet slut. Räkna ihop poäng, dra av ankpoäng och lägg till eventuella guldankor.</p>
-      </div>
-    </dialog>
-
   </main>
 
+
+
+  <dialog id="rulesDialog">
+    <div class="modal-header">
+      <h2>Regler och spelinstruktioner</h2>
+      <button class="icon-button" data-close="rulesDialog" aria-label="Stäng regler">×</button>
+    </div>
+    <div class="modal-content">
+      <h3>Om spelet</h3>
+      <p>I Replik! håller spelarna tal, lyssnar efter delmål och försöker svara på tidigare argument genom att samtidigt byta ämne. Spelet handlar om retorik, aktivt lyssnande och konsten att avslöja när någon duckar frågan.</p>
+
+      <h3>1. Tal</h3>
+      <ol>
+        <li>Dra ett ämneskort.</li>
+        <li>Talaren har upp till 60 sekunder på sig att tala om ämnet.</li>
+        <li>Talaren försöker få med så många av kortets delmål som möjligt.</li>
+        <li>Övriga spelare antecknar vilka delmål de hör.</li>
+      </ol>
+
+      <h3>2. Identifiering</h3>
+      <p>Efter talet jämför spelarna sina anteckningar och avgör gemensamt vilka delmål som faktiskt nämndes.</p>
+      <ul>
+        <li>Talaren får 1 poäng per identifierat delmål.</li>
+      </ul>
+
+      <h3>3. Replik</h3>
+      <ol>
+        <li>Nästa spelare drar ett nytt ämneskort.</li>
+        <li>Det nya ämnet måste vara huvudämnet i repliken.</li>
+        <li>Replikeraren ska samtidigt referera till så många som möjligt av de delmål som identifierades i föregående tal.</li>
+        <li>Repliken får vara upp till 60 sekunder.</li>
+      </ol>
+
+      <h3>4. Bedömning</h3>
+      <ul>
+        <li><strong>Replikpoäng:</strong> 1 poäng per tidigare delmål som rimligt vävs in.</li>
+        <li><strong>Brobyggarbonus:</strong> +2 poäng om majoriteten tycker att kopplingen mellan ämnena var trovärdig.</li>
+        <li><strong>Ankpoäng:</strong> 0 ankor om spelaren svarade, 1 anka om svaret var delvis, 2 ankor om spelaren duckade frågan.</li>
+      </ul>
+
+      <h3>5. Guldanka</h3>
+      <p>Valfri regel: Om en replik får med alla tidigare delmål, får brobyggarbonus och inga ankpoäng får spelaren en Guldanka värd +3 poäng vid spelets slut.</p>
+
+      <h3>Spelets slut</h3>
+      <p>När omgångens 20 kort är dragna är spelet slut. Räkna samman poäng och dra av 1 poäng per ankmarkör. Högst poäng vinner.</p>
+    </div>
+  </dialog>
+
+  <dialog id="ideologyDialog">
+    <div class="modal-header">
+      <h2>Ideologier och inriktningar</h2>
+      <button class="icon-button" data-close="ideologyDialog" aria-label="Stäng ideologier">×</button>
+    </div>
+    <div class="modal-content">
+      <p>Valfri variant: Varje spelare väljer två hemliga inriktningar före spelet. De ska påverka hur spelaren argumenterar, men inte sägas rakt ut. De andra spelarna kan försöka lista ut dem under en slutrunda.</p>
+
+      <div class="ideology-grid">
+        <div class="ideology"><strong>Liberalism</strong><span>Individens frihet, rättigheter, öppenhet och valmöjligheter.</span></div>
+        <div class="ideology"><strong>Socialism</strong><span>Jämlikhet, gemensamma lösningar, klass, arbete och fördelning.</span></div>
+        <div class="ideology"><strong>Konservatism</strong><span>Tradition, ansvar, institutioner, stabilitet och gradvisa förändringar.</span></div>
+        <div class="ideology"><strong>Grön ideologi</strong><span>Ekologisk hållbarhet, klimat, biologisk mångfald och långsiktighet.</span></div>
+        <div class="ideology"><strong>Nationalism</strong><span>Nationellt självbestämmande, kultur, gränser och gemensam identitet.</span></div>
+        <div class="ideology"><strong>Globalism</strong><span>Internationellt samarbete, handel, migration och gemensamma lösningar.</span></div>
+        <div class="ideology"><strong>Libertarianism</strong><span>Minimal stat, äganderätt, marknadslösningar och personlig autonomi.</span></div>
+        <div class="ideology"><strong>Teknokrati</strong><span>Expertkunskap, data, effektivitet, system och evidensbaserade beslut.</span></div>
+        <div class="ideology"><strong>Populism</strong><span>Folkets vilja mot eliter, tydliga konflikter och direkt tilltal.</span></div>
+        <div class="ideology"><strong>Humanism</strong><span>Människovärde, bildning, tolerans och individens utveckling.</span></div>
+        <div class="ideology"><strong>Kristdemokrati</strong><span>Familj, civilsamhälle, etik, människovärde och subsidiaritet.</span></div>
+        <div class="ideology"><strong>Religiös traditionalism</strong><span>Heliga värden, moral, gemenskap, plikt och kontinuitet.</span></div>
+        <div class="ideology"><strong>Sekulär rationalism</strong><span>Förnuft, vetenskap, religionsfrihet och neutral offentlighet.</span></div>
+        <div class="ideology"><strong>Existentialism</strong><span>Frihet, ansvar, mening, val och människans egen situation.</span></div>
+        <div class="ideology"><strong>Utilitarism</strong><span>Största möjliga nytta för flest människor; konsekvenser väger tungt.</span></div>
+        <div class="ideology"><strong>Stoicism</strong><span>Självdisciplin, plikt, måttfullhet och fokus på det man kan påverka.</span></div>
+        <div class="ideology"><strong>Pragmatism</strong><span>Det som fungerar i praktiken, kompromisser, resultat och testbara lösningar.</span></div>
+        <div class="ideology"><strong>Entreprenörialism</strong><span>Innovation, initiativ, risktagande, tillväxt och nya möjligheter.</span></div>
+      </div>
+    </div>
+  </dialog>
+
   <script>
+    const ROUND_SIZE = 20;
+
     const originalCards = [
-      { title: "Kärnkraft", goals: ["Energiförsörjning", "Klimatpåverkan", "Elpriser", "Nationellt oberoende"] },
-      { title: "Skolan", goals: ["Kunskapsnivå", "Likvärdighet", "Resurser", "Framtida arbetsmarknad"] },
-      { title: "Sjukvården", goals: ["Tillgänglighet", "Kostnader", "Personal", "Livskvalitet"] },
-      { title: "Migration", goals: ["Integration", "Arbetsmarknad", "Kultur", "Samhällskostnader"] },
-      { title: "Polisen", goals: ["Trygghet", "Resurser", "Förebyggande arbete", "Förtroende"] },
-      { title: "Klimatförändringar", goals: ["Utsläpp", "Internationellt samarbete", "Teknikutveckling", "Livsstil"] },
-      { title: "Sociala medier", goals: ["Yttrandefrihet", "Desinformation", "Gemenskap", "Psykisk hälsa"] },
-      { title: "Fotboll", goals: ["Lagarbete", "Talangutveckling", "Ekonomi", "Underhållning"] },
-      { title: "Kollektivtrafik", goals: ["Tillgänglighet", "Miljö", "Kostnad", "Punktlighet"] },
+      { title: "Sjukvården", goals: ["Vårdköer", "Personal", "Kostnader", "Likvärdig vård"] },
+      { title: "Skolan", goals: ["Kunskapsnivå", "Trygghet", "Likvärdighet", "Resurser"] },
+      { title: "Lag och ordning", goals: ["Trygghet", "Polisiära resurser", "Förebyggande arbete", "Rättssäkerhet"] },
+      { title: "Gängkriminalitet", goals: ["Rekrytering", "Straff", "Sociala insatser", "Lokalsamhälle"] },
+      { title: "Migration och integration", goals: ["Språk", "Arbetsmarknad", "Bostäder", "Samhörighet"] },
+      { title: "Äldreomsorg", goals: ["Bemanning", "Värdighet", "Kommunala resurser", "Anhöriga"] },
+      { title: "Jobb och arbetslöshet", goals: ["Matchning", "Utbildning", "Företagande", "Trygghetssystem"] },
+      { title: "Svensk ekonomi", goals: ["Tillväxt", "Inflation", "Statsfinanser", "Hushållens marginaler"] },
+      { title: "Försvar och NATO", goals: ["Säkerhet", "Kostnader", "Internationellt samarbete", "Totalförsvar"] },
+      { title: "Beredskap", goals: ["Krisplanering", "Livsmedel", "Energi", "Myndighetssamverkan"] },
+      { title: "Klimatpolitik", goals: ["Utsläpp", "Omställning", "Kostnader", "Internationellt ansvar"] },
+      { title: "Energi och elpriser", goals: ["Kärnkraft", "Vindkraft", "Nätkapacitet", "Hushållens ekonomi"] },
+      { title: "Bostadsmarknaden", goals: ["Byggande", "Räntor", "Hyresnivåer", "Segregation"] },
+      { title: "Landsbygd och stad", goals: ["Service", "Transporter", "Jobb", "Självbestämmande"] },
+      { title: "Kollektivtrafik", goals: ["Punktlighet", "Tillgänglighet", "Kostnad", "Klimatnytta"] },
+      { title: "Infrastruktur", goals: ["Vägar", "Järnväg", "Underhåll", "Regional utveckling"] },
+      { title: "Skatter", goals: ["Välfärdsfinansiering", "Arbete", "Företagande", "Rättvisa"] },
+      { title: "Välfärdens finansiering", goals: ["Prioriteringar", "Demografi", "Kommuner", "Effektivitet"] },
+      { title: "Pensioner", goals: ["Trygghet", "Arbetsliv", "Inflation", "Generationer"] },
+      { title: "Psykisk hälsa", goals: ["Unga", "Vårdköer", "Skolan", "Förebyggande arbete"] },
+      { title: "Sociala medier", goals: ["Yttrandefrihet", "Desinformation", "Unga", "Plattformsansvar"] },
+      { title: "AI och automatisering", goals: ["Jobb", "Produktivitet", "Etik", "Reglering"] },
+      { title: "Cybersäkerhet", goals: ["Kritisk infrastruktur", "BankID och betalningar", "Myndigheter", "Förtroende"] },
+      { title: "Desinformation och valpåverkan", goals: ["Källkritik", "Sociala medier", "Främmande makt", "Demokratins förtroende"] },
+      { title: "EU och Sverige", goals: ["Självbestämmande", "Handel", "Reglering", "Säkerhet"] },
+      { title: "Internationellt bistånd", goals: ["Solidaritet", "Säkerhet", "Migration", "Resultat"] },
+      { title: "Jämställdhet", goals: ["Arbetsliv", "Trygghet", "Ekonomi", "Representation"] },
+      { title: "Barn och unga", goals: ["Skola", "Fritid", "Psykisk hälsa", "Trygghet"] },
+      { title: "Familjepolitik", goals: ["Föräldrar", "Barnomsorg", "Ekonomi", "Valfrihet"] },
+      { title: "Kulturpolitik", goals: ["Yttrandefrihet", "Finansiering", "Tillgänglighet", "Nationell identitet"] },
+      { title: "Public service", goals: ["Oberoende", "Finansiering", "Förtroende", "Lokal bevakning"] },
+      { title: "Arkitektur och stadsbild", goals: ["Bostäder", "Kulturmiljö", "Medborgarinflytande", "Förtätning"] },
+      { title: "Matindustri", goals: ["Livsmedelspriser", "Beredskap", "Djurvälfärd", "Hållbar produktion"] },
+      { title: "Jordbruk", goals: ["Självförsörjning", "Miljökrav", "Lönsamhet", "Landsbygd"] },
+      { title: "Företagande", goals: ["Regelbörda", "Skatter", "Innovation", "Jobb"] },
+      { title: "Entreprenörskap", goals: ["Risk", "Kapital", "Tillväxt", "Nya lösningar"] },
+      { title: "Universitet och forskning", goals: ["Kunskap", "Innovation", "Akademisk frihet", "Kompetensförsörjning"] },
+      { title: "Vatten och miljö", goals: ["Dricksvatten", "Övergödning", "Klimatanpassning", "Kommunalt ansvar"] },
       { title: "Turism", goals: ["Lokala jobb", "Kulturutbyte", "Miljöpåverkan", "Infrastruktur"] },
-      { title: "Husdjur", goals: ["Ansvar", "Sällskap", "Kostnader", "Hälsa"] },
-      { title: "Bostäder", goals: ["Tillgång", "Priser", "Stadsutveckling", "Segregation"] },
-      { title: "Matpriser", goals: ["Inflation", "Produktion", "Konkurrens", "Konsumenter"] },
-      { title: "AI och automatisering", goals: ["Produktivitet", "Arbetsmarknad", "Innovation", "Etik"] },
-      { title: "Semesterresor", goals: ["Avkoppling", "Ekonomi", "Klimatpåverkan", "Upplevelser"] },
-      { title: "Bibliotek", goals: ["Kunskap", "Tillgänglighet", "Kultur", "Mötesplats"] },
-      { title: "Hundägande", goals: ["Motion", "Ansvar", "Gemenskap", "Kostnader"] },
-      { title: "Entreprenörskap", goals: ["Innovation", "Risk", "Tillväxt", "Finansiering"] },
-      { title: "Informationssäkerhet", goals: ["Integritet", "Tillgänglighet", "Förtroende", "Ansvar"] },
-      { title: "Beredskap", goals: ["Krisplanering", "Resurser", "Samarbete", "Självförsörjning"] },
-      { title: "Matindustri", goals: ["Produktion", "Kvalitet", "Handel", "Hållbarhet"] },
-      { title: "Föreningsliv", goals: ["Gemenskap", "Demokrati", "Ideellt arbete", "Lokalt engagemang"] },
-      { title: "Marskolonisation", goals: ["Teknik", "Överlevnad", "Resurser", "Samarbete"] },
-      { title: "Elbilar", goals: ["Infrastruktur", "Klimat", "Kostnader", "Råvaror"] },
-      { title: "Kulturpolitik", goals: ["Yttrandefrihet", "Finansiering", "Identitet", "Tillgänglighet"] }
+      { title: "Idrott och föreningsliv", goals: ["Folkhälsa", "Gemenskap", "Ungdomar", "Ideellt arbete"] }
     ];
 
     let deck = [];
+    let roundCards = [];
     let drawnCards = [];
 
     const cardElement = document.getElementById("card");
@@ -384,12 +437,15 @@
     const historyElement = document.getElementById("history");
     const drawButton = document.getElementById("drawButton");
     const resetButton = document.getElementById("resetButton");
+
     const rulesButton = document.getElementById("rulesButton");
-    const closeRulesButton = document.getElementById("closeRulesButton");
+    const ideologyButton = document.getElementById("ideologyButton");
     const rulesDialog = document.getElementById("rulesDialog");
+    const ideologyDialog = document.getElementById("ideologyDialog");
 
     function resetDeck() {
-      deck = [...originalCards];
+      roundCards = shuffle([...originalCards]).slice(0, ROUND_SIZE);
+      deck = [...roundCards];
       drawnCards = [];
       drawButton.disabled = false;
       drawButton.textContent = "Dra kort";
@@ -399,8 +455,9 @@
         <h2>Redo?</h2>
         <ul>
           <li>Klicka på “Dra kort” för att börja.</li>
-          <li>Varje kort kan bara dras en gång.</li>
-          <li>När alla kort är använda är spelet slut.</li>
+          <li>40 kort finns i banken.</li>
+          <li>20 kort slumpas in i varje omgång.</li>
+          <li>När omgångens 20 kort är använda är spelet slut.</li>
         </ul>`;
       updateStatus();
     }
@@ -418,7 +475,7 @@
       updateStatus();
 
       if (deck.length === 0) {
-        drawButton.textContent = "Leken är slut";
+        drawButton.textContent = "Omgången är slut";
         drawButton.disabled = true;
       }
     }
@@ -426,7 +483,7 @@
     function renderCard(card) {
       cardElement.classList.remove("empty");
       cardElement.innerHTML = `
-        <div class="label">Ämneskort ${drawnCards.length} av ${originalCards.length}</div>
+        <div class="label">Ämneskort ${drawnCards.length} av ${ROUND_SIZE}</div>
         <h2>${escapeHtml(card.title)}</h2>
         <ul>${card.goals.map(goal => `<li>${escapeHtml(goal)}</li>`).join("")}</ul>`;
     }
@@ -435,17 +492,26 @@
       cardElement.classList.add("empty");
       cardElement.innerHTML = `
         <div class="label">Spelet är slut</div>
-        <h2>Alla kort är använda</h2>
+        <h2>Omgångens 20 kort är använda</h2>
         <ul>
           <li>Blanda om för att starta en ny testomgång.</li>
+          <li>Nästa omgång får 20 nya slumpade kort ur kortbanken.</li>
           <li>Räkna poäng, ankor och eventuella guldankor.</li>
         </ul>`;
     }
 
     function updateStatus() {
-      drawnElement.textContent = `Dragna: ${drawnCards.length}`;
-      remainingElement.textContent = `Kvar: ${deck.length}`;
+      drawnElement.textContent = `Dragna: ${drawnCards.length} av ${ROUND_SIZE}`;
+      remainingElement.textContent = `Kvar i omgång: ${deck.length}`;
       historyElement.innerHTML = `<strong>Dragna kort:</strong> ${drawnCards.length ? drawnCards.map(card => escapeHtml(card.title)).join(", ") : "inga ännu."}`;
+    }
+
+    function shuffle(cards) {
+      for (let i = cards.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [cards[i], cards[j]] = [cards[j], cards[i]];
+      }
+      return cards;
     }
 
     function escapeHtml(value) {
@@ -461,9 +527,18 @@
     resetButton.addEventListener("click", resetDeck);
 
     rulesButton.addEventListener("click", () => rulesDialog.showModal());
-    closeRulesButton.addEventListener("click", () => rulesDialog.close());
-    rulesDialog.addEventListener("click", (event) => {
-      if (event.target === rulesDialog) rulesDialog.close();
+    ideologyButton.addEventListener("click", () => ideologyDialog.showModal());
+
+    document.querySelectorAll("[data-close]").forEach(button => {
+      button.addEventListener("click", () => {
+        document.getElementById(button.dataset.close).close();
+      });
+    });
+
+    document.querySelectorAll("dialog").forEach(dialog => {
+      dialog.addEventListener("click", event => {
+        if (event.target === dialog) dialog.close();
+      });
     });
 
     resetDeck();
